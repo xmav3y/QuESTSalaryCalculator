@@ -35,12 +35,13 @@ label { font-weight: 600; margin-bottom: 4px; display: block; }
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     padding: 15px;
-    width: 100%;
-    max-width: 600px;
+    width: 95%;          /* fluid width */
+    max-width: 700px;    /* max width on large screens */
     margin: 15px auto;
     display: flex;
     flex-direction: column;
     gap: 15px;
+    box-sizing: border-box; /* ensures padding doesn't break width */
 }
 
 .section {
@@ -58,10 +59,10 @@ label { font-weight: 600; margin-bottom: 4px; display: block; }
 ------------------------- */
 input, select {
     padding: 10px;
-    font-size: 0.95rem;
+    font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 8px;
-    width: 100%;
+    width: 100%;       /* full width relative to container */
     background: #f0f0f0;
     box-sizing: border-box;
 }
@@ -75,7 +76,7 @@ button {
     border-radius: 8px;
     cursor: pointer;
     transition: 0.2s;
-    width: 100%;
+    width: 100%;       /* full width on all devices */
 }
 button:hover { background: #e68a3f; }
 
@@ -96,7 +97,7 @@ button:hover { background: #e68a3f; }
    TABLE
 ------------------------- */
 .payslip-table {
-    width: 100%;
+    width: 100%;      /* full width inside container */
     border-collapse: collapse;
     margin-top: 10px;
     font-size: 0.9rem;
@@ -110,10 +111,7 @@ button:hover { background: #e68a3f; }
 }
 .payslip-table td:last-child, .payslip-table th:last-child { text-align: right; }
 .payslip-table td:first-child, .payslip-table th:first-child { text-align: left; }
-.payslip-table tfoot th {
-    font-size: 1rem;
-    background: #e8e8e8;
-}
+.payslip-table tfoot th { font-size: 1rem; background: #e8e8e8; }
 
 /* -------------------------
    WEEK 2 CHECKBOX
@@ -138,21 +136,14 @@ button:hover { background: #e68a3f; }
 }
 
 /* -------------------------
-   MEDIA QUERIES
+   OPTIONAL: SMALL SCREEN ADJUSTMENTS
 ------------------------- */
-@media(max-width:500px){
+@media(max-width:400px){
     h2 { font-size: 1.4rem; }
     h3 { font-size: 1rem; }
     input, select { font-size: 0.9rem; padding: 8px; }
     button { font-size: 0.95rem; padding: 10px; }
     .payslip-table { font-size: 0.85rem; }
-}
-
-@media(max-width:350px){
-    body { padding: 10px; }
-    .container, .payslip { padding: 10px; }
-    input, select { font-size: 0.85rem; padding: 6px; }
-    button { font-size: 0.9rem; padding: 8px; }
 }
 
     </style>
