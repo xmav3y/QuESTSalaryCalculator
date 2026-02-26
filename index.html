@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pay Calculator</title>
+    <style>
+/* -------------------------
+   GLOBAL STYLING
+------------------------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e0e0e0;
+    margin: 0;
+    padding: 20px;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* HEADINGS */
+h1, h2, h3 {
+    margin: 0 0 10px 0;
+    text-align: left;
+}
+h2 { font-size: 1.8rem; color: #cc7a39; }
+h3 { font-size: 1.2rem; color: #4d9edc; margin-top: 20px; }
+
+label { font-weight: 600; margin-bottom: 4px; display: block; }
+
+/* -------------------------
+   CONTAINER & SECTIONS
+------------------------- */
+.container, .payslip {
+    background: #f5f5f5;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 20px;
+    width: 100%;
+    max-width: 700px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section {
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* -------------------------
+   INPUTS AND BUTTONS
+------------------------- */
+input, select {
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+    background: #f0f0f0;
+}
+
+button {
+    background: #FF9B49;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+button:hover { background: #e68a3f; }
+
+/* -------------------------
+   PAYSLIP
+------------------------- */
+.payslip {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: none;
+    flex-direction: column;
+}
+.payslip .section { box-shadow: none; padding: 10px 0; }
+
+/* -------------------------
+   TABLE
+------------------------- */
+.payslip-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+.payslip-table th, .payslip-table td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+}
+.payslip-table th {
+    background: #f0f0f0;
+}
+.payslip-table td:last-child, .payslip-table th:last-child { text-align: right; }
+.payslip-table td:first-child, .payslip-table th:first-child { text-align: left; }
+.payslip-table tfoot th {
+    font-size: 1.05rem;
+    background: #e8e8e8;
+}
+
+/* -------------------------
+   WEEK 2 CHECKBOX
+------------------------- */
+.checkbox-container { margin-bottom: 10px; }
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    margin: 0;
+}
+.checkbox-label input[type="checkbox"] { width: auto; margin: 0; }
+
+/* -------------------------
+   WEEK 2 FIELDS
+------------------------- */
+.week2-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media(max-width:650px){ body{padding:15px;} }
+@media(max-width:400px){ body{padding:10px;} button{font-size:0.95rem; padding:10px;} }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Pay Calculator</h2>
+
+    <div class="section">
+        <h3>Basic Info</h3>
+        <label>Monthly Basic Pay</label>
+        <input type="number" id="monthlyBasic">
+        <label>Total Hours Worked</label>
+        <input type="number" id="hoursWorked">
+        <label>Overtime Hours</label>
+        <input type="number" id="otHours">
+    </div>
+
+    <div class="section">
+        <h3>Week 1 Schedule</h3>
+        <label>Shift Start</label>
+        <input type="time" id="shiftStart1">
+        <label>Shift End</label>
+        <input type="time" id="shiftEnd1">
+        <label>Days Worked</label>
+        <input type="number" id="days1">
+    </div>
+
+    <div class="section">
+        <h3>Week 2 Schedule</h3>
+        <div class="checkbox-container">
+            <label class="checkbox-label">
+                <input type="checkbox" id="week2Same" onchange="toggleWeek2()">
+                Same as Week 1
+            </label>
+        </div>
+        <div id="week2Fields" class="week2-fields">
+            <label>Shift Start</label>
+            <input type="time" id="shiftStart2">
+            <label>Shift End</label>
+            <input type="time" id="shiftEnd2">
+            <label>Days Worked</label>
+            <input type="number" id="days2">
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Allowances</h3>
+        <label>Meal Allowance</label>
+        <input type="number" id="meal">
+        <label>Rice Allowance</label>
+        <input type="number" id="rice">
+        <label>Complexity Allowance</label>
+        <input type="number" id="complexity">
+    </div>
+
+    <div class="section">
+        <h3>Payday</h3>
+        <label>Year</label>
+        <select id="payYear" onchange="updatePaydays()">
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+        </select>
+        <label>Select Payday</label>
+        <select id="paydaySelect"></select>
+    </div>
+
+    <button onclick="generatePayslip()">Generate Payslip</button>
+</div>
+
+<div class="payslip" id="payslip">
+    <h2>Calculated Pay</h2>
+    <p>Disclaimer: This is not an official payslip. Estimated salaries only.</p>
+
+    <table class="payslip-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount (₱)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>EARNINGS</strong></td><td></td></tr>
+            <tr><td>Basic Pay</td><td id="basicPay"></td></tr>
+            <tr><td>Overtime Pay</td><td id="otPay"></td></tr>
+            <tr><td>Night Differential</td><td id="ndPay"></td></tr>
+            <tr><td>Meal Allowance</td><td id="mealPay"></td></tr>
+            <tr><td>Rice Allowance</td><td id="ricePay"></td></tr>
+            <tr><td>Complexity Allowance</td><td id="complexityPay"></td></tr>
+            <tr><td><strong>DEDUCTIONS</strong></td><td></td></tr>
+            <tr><td>SSS</td><td id="sss"></td></tr>
+            <tr><td>PhilHealth</td><td id="philhealth"></td></tr>
+            <tr><td>Pag-IBIG</td><td id="pagibig"></td></tr>
+            <tr><td>Withholding Tax</td><td id="tax"></td></tr>
+        </tbody>
+        <tfoot>
+            <tr><th>Gross Pay</th><th id="gross"></th></tr>
+            <tr><th>Net Pay</th><th id="net"></th></tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+const PAY_PERIODS_PER_YEAR = 26;
+let ytdTaxable = 0;
+let ytdTaxPaid = 0;
+
+function peso(val){ return "₱" + val.toFixed(2); }
+
+function toggleWeek2(){
+    const checkbox = document.getElementById("week2Same");
+    const fields = document.getElementById("week2Fields");
+    if(checkbox.checked){
+        fields.style.display = "none";
+        document.getElementById("shiftStart2").value = document.getElementById("shiftStart1").value;
+        document.getElementById("shiftEnd2").value = document.getElementById("shiftEnd1").value;
+        document.getElementById("days2").value = document.getElementById("days1").value;
+    } else {
+        fields.style.display = "flex";
+    }
+}
+window.onload = toggleWeek2;
+
+// ---------- Time & Night Differential ----------
+function timeToDecimal(timeStr){
+    if(!timeStr) return 0;
+    let parts = timeStr.split(':');
+    return parseInt(parts[0]) + parseInt(parts[1])/60;
+}
+
+function computeNDHours(startStr, endStr){
+    if(!startStr || !endStr) return 0;
+    let start = timeToDecimal(startStr);
+    let end = timeToDecimal(endStr);
+    if(end < start) end += 24;
+    let nd = 0;
+    for(let h=start; h<end; h+=0.25){
+        let hour = h % 24;
+        if(hour>=22 || hour<6) nd+=0.25;
+    }
+    return nd;
+}
+
+// ---------- Tax ----------
+function computeAnnualTax(annualTaxable){
+    if (annualTaxable <= 250000) return 0;
+    if (annualTaxable <= 400000) return (annualTaxable-250000)*0.15;
+    if (annualTaxable <= 800000) return 22500 + (annualTaxable-400000)*0.20;
+    if (annualTaxable <= 2000000) return 102500 + (annualTaxable-800000)*0.25;
+    if (annualTaxable <= 8000000) return 402500 + (annualTaxable-2000000)*0.30;
+    return 2202500 + (annualTaxable-8000000)*0.35;
+}
+
+// ---------- Biweekly Payday Generation ----------
+function getBiweeklyPaydays(firstPayday, year) {
+    const paydays = [];
+    let date = new Date(firstPayday);
+    while (date.getFullYear() <= year) {
+        if (date.getFullYear() === year) paydays.push(new Date(date));
+        date.setDate(date.getDate() + 14); // biweekly
+    }
+    return paydays;
+}
+
+function updatePaydays(){
+    const year = parseInt(document.getElementById("payYear").value);
+    const select = document.getElementById("paydaySelect");
+    select.innerHTML = "";
+    
+    // Start date in UTC to avoid timezone shift
+    let paydays = [];
+    let d = new Date(Date.UTC(year, 0, 2)); // Jan 2, year
+    while(d.getUTCFullYear() === year){
+        paydays.push(new Date(d));
+        d.setUTCDate(d.getUTCDate() + 14); // biweekly
+    }
+
+    // Populate dropdown
+    paydays.forEach(d => {
+        const option = document.createElement("option");
+        // Format as MM/DD/YYYY manually
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        const yyyy = d.getUTCFullYear();
+        option.value = `${yyyy}-${mm}-${dd}`;
+        option.text = `${mm}/${dd}/${yyyy}`;
+        select.appendChild(option);
+    });
+}
+
+// Populate initial year
+updatePaydays();
+
+// ---------- Calculate Pay Period ----------
+function getPayPeriod(payday){
+    const end = new Date(payday);
+    const start = new Date(end);
+    start.setDate(end.getDate() - 13); // 14-day period
+    return { start, end };
+}
+
+// ---------- Generate Payslip ----------
+function generatePayslip(){
+
+    let monthly = parseFloat(document.getElementById("monthlyBasic").value) || 0;
+    let hoursWorked = parseFloat(document.getElementById("hoursWorked").value) || 0;
+    let otHours = parseFloat(document.getElementById("otHours").value) || 0;
+
+    let mealMonthly = parseFloat(document.getElementById("meal").value) || 0;
+    let riceMonthly = parseFloat(document.getElementById("rice").value) || 0;
+    let compMonthly = parseFloat(document.getElementById("complexity").value) || 0;
+
+    // Pay period
+    let payday = document.getElementById("paydaySelect").value;
+    let period = getPayPeriod(payday);
+    let daysInPeriod = 14;
+    let daysInMonth = new Date(period.start.getFullYear(), period.start.getMonth()+1, 0).getDate();
+
+    // Pro-rated monthly pay & standard hours
+    let periodBaseSalary = monthly * (daysInPeriod / daysInMonth);
+    let standardHours = 80 * (daysInPeriod / 14);
+    let hourly = periodBaseSalary / standardHours;
+
+    let basic = (hoursWorked / standardHours) * periodBaseSalary;
+    let overtime = otHours * hourly * 1.25;
+
+    // ND
+    let ndHours1 = computeNDHours(
+        document.getElementById("shiftStart1").value,
+        document.getElementById("shiftEnd1").value
+    ) * (parseFloat(document.getElementById("days1").value) || 0);
+
+    let ndHours2 = 0;
+    if(!document.getElementById("week2Same").checked){
+        ndHours2 = computeNDHours(
+            document.getElementById("shiftStart2").value,
+            document.getElementById("shiftEnd2").value
+        ) * (parseFloat(document.getElementById("days2").value) || 0);
+    } else {
+        ndHours2 = ndHours1;
+    }
+
+    let totalNDHours = ndHours1 + ndHours2;
+    let nightDiff = totalNDHours * hourly * 0.20;
+
+    let meal = mealMonthly * (daysInPeriod / daysInMonth);
+    let rice = riceMonthly * (daysInPeriod / daysInMonth);
+    let comp = compMonthly * (daysInPeriod / daysInMonth);
+
+    let gross = basic + overtime + nightDiff + meal + rice + comp;
+
+    let sss = 875;
+    let philhealth = 875;
+    let pagibig = 200;
+
+    let taxableThisPeriod = gross - (sss + philhealth + pagibig);
+
+    let annualTax = computeAnnualTax(taxableThisPeriod * (365/daysInPeriod)/1); // approximate
+    let taxThisPeriod = annualTax / (365/daysInPeriod)/1;
+
+    let net = gross - (sss + philhealth + pagibig + taxThisPeriod);
+
+    document.getElementById("basicPay").innerText = peso(basic);
+    document.getElementById("otPay").innerText = peso(overtime);
+    document.getElementById("ndPay").innerText = peso(nightDiff);
+    document.getElementById("mealPay").innerText = peso(meal);
+    document.getElementById("ricePay").innerText = peso(rice);
+    document.getElementById("complexityPay").innerText = peso(comp);
+    document.getElementById("sss").innerText = peso(sss);
+    document.getElementById("philhealth").innerText = peso(philhealth);
+    document.getElementById("pagibig").innerText = peso(pagibig);
+    document.getElementById("tax").innerText = peso(taxThisPeriod);
+    document.getElementById("gross").innerText = peso(gross);
+    document.getElementById("net").innerText = peso(net);
+
+    document.getElementById("payslip").style.display = "block";
+}
+</script>
+</body>
+</html>
